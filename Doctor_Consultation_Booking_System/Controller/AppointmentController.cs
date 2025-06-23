@@ -8,7 +8,7 @@ namespace DCBS.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class AppointmentController : ControllerBase
+    public class AppointmentController : ControllerBase   //controllerbase provides base class for controller
     {
         private readonly string connectionString = "Data Source=Appointment.db";
         private readonly AppointmentRepository _repo;
