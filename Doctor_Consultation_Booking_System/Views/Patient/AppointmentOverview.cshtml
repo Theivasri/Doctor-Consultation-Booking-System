@@ -1,0 +1,111 @@
+@model DCBS.ViewModel.AppointmentOverviewViewModel
+
+<style>
+    table.table-bordered {
+        border: 2px solid #333;
+    }
+
+    table.table-bordered th,
+    table.table-bordered td {
+        border: 1px solid #555;
+    }
+    table.table-bordered th,
+    table.table-bordered td {
+        padding: 12px; /* or any value you like */
+    }
+</style>
+
+@{
+    ViewData["Title"] = "Appointment Overview";
+}
+
+<div class="container mt-4">
+    <h2 class="text-primary">🗂️ Appointment Overview</h2>
+    <h5 class="text-secondary">👤 Showing history </h5>
+
+    <hr />
+
+    <h4 class="text-info mt-4">📅 Upcoming Appointments</h4>
+    @if (Model.Upcoming == null || !Model.Upcoming.Any())
+    {
+        <p>No upcoming appointments.</p>
+    }
+    else
+    {
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Department</th>
+                    <th>Doctor ID</th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var a in Model.Upcoming)
+            {
+                <tr>
+                    <td>@a.Date.ToShortDateString()</td>
+                    <td>@a.Department</td>
+                    <td>@a.DoctorId</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    }
+
+    <h4 class="text-success mt-4">✅ Completed Appointments</h4>
+    @if (Model.Completed == null || !Model.Completed.Any())
+    {
+        <p>No completed appointments.</p>
+    }
+    else
+    {
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Department</th>
+                    <th>Doctor ID</th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var a in Model.Completed)
+            {
+                <tr>
+                    <td>@a.Date.ToShortDateString()</td>
+                    <td>@a.Department</td>
+                    <td>@a.DoctorId</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    }
+
+    <h4 class="text-danger mt-4">❌ Cancelled Appointments</h4>
+    @if (Model.Cancelled == null || !Model.Cancelled.Any())
+    {
+        <p>No cancelled appointments.</p>
+    }
+    else
+    {
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Department</th>
+                    <th>Doctor ID</th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var a in Model.Cancelled)
+            {
+                <tr>
+                    <td>@a.Date.ToShortDateString()</td>
+                    <td>@a.Department</td>
+                    <td>@a.DoctorId</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    }
+</div>

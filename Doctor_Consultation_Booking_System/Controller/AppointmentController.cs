@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Mvc;
 using System.Data.SQLite;
 using DCBS.Model;
 using DCBS.Repositories;
-using DCBS.Data;
 using DCBS.Model.StatusUpdateDto;
 
 namespace DCBS.Controllers
@@ -22,18 +21,24 @@ namespace DCBS.Controllers
         [HttpPost("add")]
         public IActionResult AddAppointment([FromBody] Appointment appt)
         {
-            using var conn = new SQLiteConnection("Data Source=Appointment.db");
+            using var conn = new SQLiteConnection(connectionString);
             conn.Open();
 
-            string query = "INSERT INTO Appointments (PatientID, Date, Department, Status) VALUES (@PatientID, @Date, @Department, @Status)";
+            string query = @"
+                INSERT INTO Appointments 
+                (PatientID, DoctorId, Date, Department, Status) 
+                VALUES 
+                (@PatientID, @DoctorId, @Date, @Department, @Status)";
+
             using var cmd = new SQLiteCommand(query, conn);
             cmd.Parameters.AddWithValue("@PatientID", appt.PatientID);
+            cmd.Parameters.AddWithValue("@DoctorId", appt.DoctorId);
             cmd.Parameters.AddWithValue("@Date", appt.Date);
             cmd.Parameters.AddWithValue("@Department", appt.Department);
             cmd.Parameters.AddWithValue("@Status", appt.Status);
             cmd.ExecuteNonQuery();
 
-            return Ok("Appointment added successfully");
+            return Ok("Appointment added successfully.");
         }
 
         [HttpGet("overview/{id}")]
@@ -43,45 +48,45 @@ namespace DCBS.Controllers
             var completed = new List<Appointment>();
             var cancelled = new List<Appointment>();
 
-            using (var conn = new SQLiteConnection(connectionString))
+            using var conn = new SQLiteConnection(connectionString);
+            conn.Open();
+
+            string query = @"
+                SELECT * 
+                FROM Appointments 
+                WHERE PatientID = @id 
+                ORDER BY Date DESC";
+
+            using var cmd = new SQLiteCommand(query, conn);
+            cmd.Parameters.AddWithValue("@id", id);
+
+            using var reader = cmd.ExecuteReader();
+            while (reader.Read())
             {
-                conn.Open();
-                string query = "SELECT * FROM Appointments WHERE PatientID = @id ORDER BY Date DESC";
-
-                using (var cmd = new SQLiteCommand(query, conn))
+                var appt = new Appointment
                 {
-                    cmd.Parameters.AddWithValue("@id", id);
-                    using (var reader = cmd.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            var appt = new Appointment
-                            {
-                                AppointmentID = Convert.ToInt32(reader["AppointmentID"]),
-                                PatientID = Convert.ToInt32(reader["PatientID"]),
-                                Date = DateTime.Parse(reader["Date"].ToString()),
-                                Department = reader["Department"].ToString(),
-                                Status = reader["Status"].ToString()
-                            };
+                    AppointmentID = Convert.ToInt32(reader["AppointmentID"]),
+                    PatientID = Convert.ToInt32(reader["PatientID"]),
+                    DoctorId = Convert.ToInt32(reader["DoctorId"]),
+                    Date = DateTime.Parse(reader["Date"].ToString()!),
+                    Department = reader["Department"].ToString()!,
+                    Status = reader["Status"].ToString()!
+                };
 
-                            switch (appt.Status)
-                            {
-                                case "Upcoming":
-                                    upcoming.Add(appt);
-                                    break;
-                                case "Completed":
-                                    completed.Add(appt);
-                                    break;
-                                case "Cancelled":
-                                    cancelled.Add(appt);
-                                    break;
-                            }
-                        }
-                    }
+                switch (appt.Status)
+                {
+                    case "Upcoming":
+                        upcoming.Add(appt);
+                        break;
+                    case "Completed":
+                        completed.Add(appt);
+                        break;
+                    case "Cancelled":
+                        cancelled.Add(appt);
+                        break;
                 }
             }
 
-            // Return structured JSON
             return Ok(new
             {
                 Upcoming = upcoming,
@@ -89,9 +94,9 @@ namespace DCBS.Controllers
                 Cancelled = cancelled
             });
         }
+
         [HttpPut("{appointmentId}/status")]
         public async Task<IActionResult> UpdateStatus(int appointmentId, [FromBody] StatusUpdateDto update)
-
         {
             if (string.IsNullOrWhiteSpace(update.NewStatus))
                 return BadRequest("Status value is required.");
@@ -99,13 +104,5 @@ namespace DCBS.Controllers
             await _repo.UpdateStatusAsync(appointmentId, update.NewStatus);
             return Ok("Status updated successfully.");
         }
-
-        // [HttpPut("autoclose")]
-        // public async Task<IActionResult> AutoComplete()
-        // {
-        //     await _repo.AutoCompletePastAppointmentsAsync();
-        //     return Ok("Past appointments marked as completed.");
-        // }
-
     }
 }

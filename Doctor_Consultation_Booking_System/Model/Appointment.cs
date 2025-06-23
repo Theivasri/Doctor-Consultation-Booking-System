@@ -13,6 +13,11 @@ namespace DCBS.Model
         public int PatientID { get; set; }
 
         /// <summary>
+        /// Getter and setter for Doctor id.
+        /// </summary>
+        public int DoctorId { get; set; }
+
+        /// <summary>
         /// Getter and setter for Date
         /// </summary>
         public DateTime Date { get; set; }
@@ -26,5 +31,6 @@ namespace DCBS.Model
         /// Getter and setter for appointment status
         /// </summary>
         public string Status { get; set; }
+
     }
 }

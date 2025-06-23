@@ -7,32 +7,32 @@ namespace DCBS.Repositories
     public class AppointmentRepository
     {
         private readonly HospitalDbContext _context;
-
         public AppointmentRepository(HospitalDbContext context)
         {
             _context = context;
         }
-
-        public List<Appointment> GetAppointmentsByPatient(int patientId)
+        public void AddAppointment(Appointment appt)
         {
-            return _context.Appointments
-                .Where(a => a.PatientID == patientId)
-                .OrderByDescending(a => a.Date)
-                .ToList();
+            _context.Appointments.Add(appt);
+            _context.SaveChanges();
         }
 
         public List<Appointment> GetAppointmentsByStatus(int patientId, string status)
         {
             return _context.Appointments
+                .Include(a => a.DoctorId) // 💡 This is the key addition
                 .Where(a => a.PatientID == patientId && a.Status == status)
                 .OrderByDescending(a => a.Date)
                 .ToList();
         }
 
-        public void AddAppointment(Appointment appt)
+        public List<Appointment> GetAppointmentsByStatus(int patientId, int DoctorId, string status)
         {
-            _context.Appointments.Add(appt);
-            _context.SaveChanges();
+            return _context.Appointments
+                .Include(a => a.DoctorId) // 💡 This is the key addition
+                .Where(a => a.PatientID == patientId && a.Status == status)
+                .OrderByDescending(a => a.Date)
+                .ToList();
         }
 
         public async Task UpdateStatusAsync(int appointmentId, string newStatus)
@@ -44,19 +44,5 @@ namespace DCBS.Repositories
                 await _context.SaveChangesAsync();
             }
         }
-        // public async Task AutoCompletePastAppointmentsAsync()
-        // {
-        //     var now = DateTime.Now;
-        //     var expired = await _context.Appointments
-        //         .Where(a => a.Status == "Upcoming" && a.Date < now)
-        //         .ToListAsync();
-
-        //     foreach (var appt in expired)
-        //     {
-        //         appt.Status = "Completed";
-        //     }
-
-        //     await _context.SaveChangesAsync();
-        // }
     }
 }

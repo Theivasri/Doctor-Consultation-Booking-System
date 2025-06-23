@@ -11,7 +11,7 @@ namespace DCBS.Controllers
 
         public PatientController(HospitalDbContext context)
         {
-            _repo = new AppointmentRepository(context); // Inject EF context
+            _repo = new AppointmentRepository(context);
         }
 
         /// <summary>

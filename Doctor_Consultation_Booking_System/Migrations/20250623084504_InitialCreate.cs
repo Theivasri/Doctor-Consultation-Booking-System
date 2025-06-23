@@ -18,6 +18,7 @@ namespace Doctor_Consultation_Booking_System.Migrations
                     AppointmentID = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     PatientID = table.Column<int>(type: "INTEGER", nullable: false),
+                    DoctorId = table.Column<int>(type: "INTEGER", nullable: false),
                     Date = table.Column<DateTime>(type: "TEXT", nullable: false),
                     Department = table.Column<string>(type: "TEXT", nullable: false),
                     Status = table.Column<string>(type: "TEXT", nullable: false)
@@ -26,6 +27,19 @@ namespace Doctor_Consultation_Booking_System.Migrations
                 {
                     table.PrimaryKey("PK_Appointments", x => x.AppointmentID);
                 });
+
+            migrationBuilder.CreateTable(
+                name: "Doctors",
+                columns: table => new
+                {
+                    DoctorId = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Name = table.Column<string>(type: "TEXT", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Doctors", x => x.DoctorId);
+                });
         }
 
         /// <inheritdoc />
@@ -33,6 +47,9 @@ namespace Doctor_Consultation_Booking_System.Migrations
         {
             migrationBuilder.DropTable(
                 name: "Appointments");
+
+            migrationBuilder.DropTable(
+                name: "Doctors");
         }
     }
 }

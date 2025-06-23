@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Doctor_Consultation_Booking_System.Migrations
 {
     [DbContext(typeof(HospitalDbContext))]
-    [Migration("20250621075221_InitialCreate")]
+    [Migration("20250623084504_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -33,6 +33,9 @@ namespace Doctor_Consultation_Booking_System.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<int>("DoctorId")
+                        .HasColumnType("INTEGER");
+
                     b.Property<int>("PatientID")
                         .HasColumnType("INTEGER");
 
@@ -43,6 +46,21 @@ namespace Doctor_Consultation_Booking_System.Migrations
                     b.HasKey("AppointmentID");
 
                     b.ToTable("Appointments", (string)null);
+                });
+
+            modelBuilder.Entity("DCBS.Model.Doctor.Doctor", b =>
+                {
+                    b.Property<int>("DoctorId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("DoctorId");
+
+                    b.ToTable("Doctors");
                 });
 #pragma warning restore 612, 618
         }
